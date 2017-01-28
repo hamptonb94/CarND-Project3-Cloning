@@ -41,9 +41,9 @@ def generateBatch(logdata, batch_size=128):
 
 
 INPUT_SHAPE = [160, 320, 3]
-SAMPLES_PER_EPOCH = 30
-VALID_SAMPLES_PER_EPOCH = 30
-EPOCHS = 3
+SAMPLES_PER_EPOCH = 150
+VALID_SAMPLES_PER_EPOCH = 50
+EPOCHS = 5
 
 if __name__ == '__main__':
     model = simpleModel()
@@ -52,8 +52,8 @@ if __name__ == '__main__':
     
     logdata = LogData('simple_train.csv')
     
-    generatorTrain = generateBatch(logdata, 10)
-    generatorValid = generateBatch(logdata, 10)
+    generatorTrain = generateBatch(logdata, 30)
+    generatorValid = generateBatch(logdata, 30)
     
     history = model.fit_generator( generatorTrain,
                 SAMPLES_PER_EPOCH,

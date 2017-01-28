@@ -30,7 +30,7 @@ def findExtremes(logdata):
             caseLeft = row
     return { 'center':logdata[0], 'left':caseLeft, 'right':caseRight }
 
-def findSmallSample(logdata):
+def findSmallSample(logdata, num_samples = 10):
     """Find 10 examples (each) of steering left, right, and center"""
     centers = []
     lefts = []
@@ -41,11 +41,11 @@ def findSmallSample(logdata):
             lefts.append(row)
         if steering > 0.4:
             rights.append(row)
-        if steering > -0.0001 and steering < 0.0001 and len(centers) < 10:
+        if steering > -0.0001 and steering < 0.0001 and len(centers) < num_samples:
             centers.append(row)
     samples = centers
-    samples += random.sample(lefts, 10)
-    samples += random.sample(rights, 10)
+    samples += random.sample(lefts, num_samples)
+    samples += random.sample(rights, num_samples)
     return samples
 
 def formatImage(logrow, name):
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         plotImage(examples[name], name)
         formatImage(examples[name], name)
     
-    samples = findSmallSample(logdata.rows)
+    samples = findSmallSample(logdata.rows, num_samples = 50)
     with open(os.path.join(DATA_DIR,'simple_train.csv'), 'w') as csvfile:
         writer = DictWriter(csvfile, fieldnames=logdata.rows[0].keys())
         writer.writeheader()

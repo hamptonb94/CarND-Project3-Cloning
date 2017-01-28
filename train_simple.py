@@ -27,7 +27,7 @@ def generateBatch(logdata, batch_size=128):
         batch_y = []
         for row in logdata.rows:
             image = mpimg.imread(os.path.join(DATA_DIR, row['center']))
-            image = image[60:140, 0:320]
+            image = image[60:140, 0:320]  # crop top and bottom
             steering = float(row['steering'])
             
             batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))

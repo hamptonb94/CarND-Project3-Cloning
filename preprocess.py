@@ -11,7 +11,7 @@ OUT_DIR  = 'procout'
 class LogData:
     def __init__(self, filename = 'driving_log.csv', directory=DATA_DIR):
         self.rows = []
-        with open(os.path.join(directory,'driving_log.csv')) as csvfile:
+        with open(os.path.join(directory, filename)) as csvfile:
             reader = DictReader(csvfile)
             for row in reader:
                 self.rows.append(row)

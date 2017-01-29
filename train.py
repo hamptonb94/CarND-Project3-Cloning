@@ -91,7 +91,8 @@ def driveModel(modelName):
     raise "Unknown model:"+modelName
 
 
-def generateBatch(logdata, batch_size):
+def generateTrainingBatch(logdata, batch_size):
+    """For training we will use all camera angles, and do augmentation"""
     while logdata:
         batch_x = []
         batch_y = []
@@ -128,13 +129,31 @@ def generateBatch(logdata, batch_size):
                 yield (np.vstack(batch_x), np.vstack(batch_y))
                 batch_x = []
                 batch_y = []
-            
+
+def generateValidationBatch(logdata, batch_size):
+    """For validation we just return a batch of center images"""
+    while logdata:
+        batch_x = []
+        batch_y = []
+        for row in logdata.rows:
+            camera = 'center'
+            image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
+            image  = image[60:140, 0:320]  # crop top and bottom
+            steering = float(row['steering'])
+            batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
+            batch_y.append(np.array([[steering]]))
+            # yield an entire batch at once
+            if len(batch_x) == batch_size:
+                batch_x, batch_y, = shuffle(batch_x, batch_y, random_state=21)
+                yield (np.vstack(batch_x), np.vstack(batch_y))
+                batch_x = []
+                batch_y = []
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
     parser.add_argument('modelName', type=str, help='Name of NN model to train.')
-    parser.add_argument('batchSize', type=int, help='Number of images per batch.', nargs='?', default=128)
-    parser.add_argument('numTrain',  type=int, help='Number of images per epoch.', nargs='?', default=4000)
+    parser.add_argument('batchSize', type=int, help='Number of images per batch.', nargs='?', default= 100)
+    parser.add_argument('numTrain',  type=int, help='Number of images per epoch.', nargs='?', default=8000)
     args = parser.parse_args()
     
     # set up input log data
@@ -144,8 +163,8 @@ if __name__ == '__main__':
     model = driveModel(args.modelName)
     model.summary()
     
-    generatorTrain = generateBatch(logdata, args.batchSize)
-    generatorValid = generateBatch(logdata, args.batchSize)
+    generatorTrain = generateTrainingBatch(  logdata, args.batchSize)
+    generatorValid = generateValidationBatch(logdata, args.batchSize)
     
     history = model.fit_generator(
                 generator = generatorTrain,

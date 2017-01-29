@@ -11,9 +11,8 @@ from keras.layers import Dense, Dropout, Flatten, Lambda, ELU, MaxPooling2D, Con
 from keras.regularizers import l2
 
 N_EPOCHS = 5
-KEEP     = 0.2
 R_VALID  = 0.15
-CONV_INIT='glorot_uniform'
+LAYER_INIT='he_normal'
 
 # pre-process data:
 N_ROWS = 160-80
@@ -43,10 +42,10 @@ def driveModelSimple():
     
     model = Sequential()
     # Normalize each pixel
-    model.add(Lambda(lambda x: x/127.5 - 1., input_shape=IMG_SHAPE, output_shape=IMG_SHAPE))
+    model.add(Lambda(lambda x: x/127.5 - 1., input_shape=IMG_SHAPE))
     
     # 1st Convolution
-    model.add(Convolution2D(24, 3, 3, subsample=(2,2), name="Conv2D_1", input_shape=IMG_SHAPE))
+    model.add(Convolution2D(24, 3, 3, subsample=(2,2)))
     model.add(ELU())
     
     # Flatten for connected layers
@@ -63,43 +62,39 @@ def driveModelNvidia():
     
     model = Sequential()
     # Normalize each pixel
-    model.add(Lambda(lambda x: x/127.5 - 1., input_shape=IMG_SHAPE, output_shape=IMG_SHAPE))
+    model.add(Lambda(lambda x: x/127.5 - 1., input_shape=IMG_SHAPE))
     
     # NVIDIA Steering model
-    model.add(Convolution2D(24, 5, 5, subsample=(2, 2), border_mode="valid", init=CONV_INIT, W_regularizer=l2(0.01)))
+    model.add(Convolution2D(24, 5, 5, subsample=(2, 2), border_mode="valid", init=LAYER_INIT))
     model.add(ELU())
-    model.add(Dropout(KEEP))
 
-    model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode="valid", init=CONV_INIT))
+    model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode="valid", init=LAYER_INIT))
     model.add(ELU())
-    model.add(Dropout(KEEP))
     
-    model.add(Convolution2D(48, 5, 5, subsample=(2, 2), border_mode="valid", init=CONV_INIT))
+    model.add(Convolution2D(48, 5, 5, subsample=(2, 2), border_mode="valid", init=LAYER_INIT))
     model.add(ELU())
-    model.add(Dropout(KEEP))
 
-    model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init=CONV_INIT))
+    model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init=LAYER_INIT))
     model.add(ELU())
-    model.add(Dropout(KEEP))
 
-    model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init=CONV_INIT))
+    model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init=LAYER_INIT))
     model.add(ELU())
-    model.add(Dropout(KEEP))
     
     model.add(Flatten())
 
-    model.add(Dense(100))
+    model.add(Dense(1164, init=LAYER_INIT))
     model.add(ELU())
-    model.add(Dropout(0.2))
-    
-    model.add(Dense(50))
-    model.add(ELU())
-    model.add(Dropout(0.2))
-    
-    model.add(Dense(10))
+
+    model.add(Dense(100, init=LAYER_INIT))
     model.add(ELU())
     
-    model.add(Dense(1))
+    model.add(Dense(50, init=LAYER_INIT))
+    model.add(ELU())
+    
+    model.add(Dense(10, init=LAYER_INIT))
+    model.add(ELU())
+    
+    model.add(Dense(1, init=LAYER_INIT))
     
     model.compile(loss="mse", optimizer="adam")
     return model

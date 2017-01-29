@@ -61,10 +61,20 @@ def plotImage(logrow, name):
     plt.title("Steering = "+logrow['steering'])
     plt.savefig(OUT_DIR+"/"+name+".png")
 
+def plotHistogram(logdata):
+    angles = []
+    for row in logdata.rows:
+        angles.append(float(row['steering']))
+    n, bins, patches = plt.hist(angles, 50)
+    plt.title("Steering Angle Counts")
+    plt.savefig(OUT_DIR+"/hist.png")
+
 if __name__ == '__main__':
     logdata = LogData()
     print(logdata.rows[0])
-
+    
+    plotHistogram(logdata)
+    
     examples = findExtremes(logdata.rows)
     for name in examples:
         plotImage(examples[name], name)

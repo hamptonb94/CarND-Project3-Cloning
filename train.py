@@ -1,7 +1,10 @@
+import os.path
 import argparse
+import random
 import numpy as np
 import cv2
-from preprocess import *
+import matplotlib.image as mpimg
+from csv import DictReader, DictWriter
 from sklearn.utils import shuffle
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU, MaxPooling2D, Convolution2D
@@ -9,12 +12,31 @@ from keras.regularizers import l2
 
 N_EPOCHS = 5
 KEEP     = 0.2
+R_VALID  = 0.2
 CONV_INIT='glorot_uniform'
 
 # pre-process data:
 N_ROWS = 160-80
 N_COLS = 320
 IMG_SHAPE = (N_ROWS, N_COLS, 3)
+
+
+DATA_DIR = 'data'
+class LogData:
+    """Class to load the log data and split into training/validation"""
+    def __init__(self, filename = 'driving_log.csv', directory=DATA_DIR):
+        self.rows = []
+        with open(os.path.join(directory, filename)) as csvfile:
+            reader = DictReader(csvfile)
+            for row in reader:
+                self.rows.append(row)
+        print("Driving Log processed. Entries:", len(self.rows))
+        random.shuffle(self.rows)
+        split = int((1.0-R_VALID)*len(self.rows))
+        self.trainRows = self.rows[:split]
+        self.validRows = self.rows[split:]
+        print("Training/Validation sizes:", len(self.trainRows), len(self.validRows))
+
 
 def driveModelSimple():
     """Super simple NN model to test process flow"""
@@ -81,7 +103,6 @@ def driveModelNvidia():
     
     model.compile(loss="mse", optimizer="adam")
     return model
-    
 
 def driveModel(modelName):
     if modelName == 'simple':
@@ -96,7 +117,7 @@ def generateTrainingBatch(logdata, batch_size):
     while logdata:
         batch_x = []
         batch_y = []
-        for row in logdata.rows:
+        for row in logdata.trainRows:
             # there are so many images with no steering angle
             # so we will skip 1/2 of them
             if random.choice(['Skip', 'Keep']) == 'Skip':
@@ -135,7 +156,7 @@ def generateValidationBatch(logdata, batch_size):
     while logdata:
         batch_x = []
         batch_y = []
-        for row in logdata.rows:
+        for row in logdata.validRows:
             camera = 'center'
             image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
             image  = image[60:140, 0:320]  # crop top and bottom

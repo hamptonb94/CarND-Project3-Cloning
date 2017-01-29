@@ -15,8 +15,8 @@ R_VALID  = 0.15
 LAYER_INIT='he_normal'
 
 # pre-process data:
-N_ROWS = 160-80
-N_COLS = 320
+N_ROWS = 66
+N_COLS = 200
 IMG_SHAPE = (N_ROWS, N_COLS, 3)
 
 
@@ -117,6 +117,7 @@ def generateTrainingBatch(logdata, batch_size):
             camera = random.choice(['left','center','right'])
             image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
             image  = image[60:140, 0:320]  # crop top and bottom
+            image = cv2.resize(image, (N_COLS, N_ROWS))
             
             steering = float(row['steering'])
             #adjust steering for left/right camera angles
@@ -150,6 +151,7 @@ def generateValidationBatch(logdata, batch_size):
             camera = 'center'
             image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
             image  = image[60:140, 0:320]  # crop top and bottom
+            image = cv2.resize(image, (N_COLS, N_ROWS))
             steering = float(row['steering'])
             batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
             batch_y.append(np.array([[steering]]))

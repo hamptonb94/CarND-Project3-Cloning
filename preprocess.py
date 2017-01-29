@@ -1,9 +1,10 @@
 import os.path
 import random
 import numpy as np
-from csv import DictReader, DictWriter
+import cv2
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from csv import DictReader, DictWriter
 
 DATA_DIR = 'data'
 OUT_DIR  = 'procout'
@@ -54,6 +55,11 @@ def formatImage(logrow, name):
     plotImg = plt.imshow(cropped)
     plt.title("Steering = "+logrow['steering']+" CROPPED")
     plt.savefig(OUT_DIR+"/"+name+",cropped.png")
+    small = cv2.resize(cropped, (200,66))
+    plotImg = plt.imshow(small)
+    plt.title("Steering = "+logrow['steering']+" RESIZED")
+    plt.savefig(OUT_DIR+"/"+name+",cropped,rs.png")
+    
 
 def plotImage(logrow, name):
     img = mpimg.imread(os.path.join(DATA_DIR, logrow['center']))

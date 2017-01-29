@@ -12,7 +12,7 @@ from keras.regularizers import l2
 
 N_EPOCHS = 5
 KEEP     = 0.2
-R_VALID  = 0.2
+R_VALID  = 0.15
 CONV_INIT='glorot_uniform'
 
 # pre-process data:
@@ -118,11 +118,6 @@ def generateTrainingBatch(logdata, batch_size):
         batch_x = []
         batch_y = []
         for row in logdata.trainRows:
-            # there are so many images with no steering angle
-            # so we will skip 1/2 of them
-            if random.choice(['Skip', 'Keep']) == 'Skip':
-                continue
-            
             # we will choose between the 3 cameras and get the image
             camera = random.choice(['left','center','right'])
             image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))

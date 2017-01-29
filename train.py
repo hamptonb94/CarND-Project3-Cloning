@@ -58,8 +58,9 @@ def driveModelSimple():
     return model
 
 def driveModelNvidia():
-    """NVIDIA Steering model"""
-    
+    """NVIDIA Steering model
+        https://arxiv.org/pdf/1604.07316v1.pdf
+    """
     model = Sequential()
     # Normalize each pixel
     model.add(Lambda(lambda x: x/127.5 - 1., input_shape=IMG_SHAPE))
@@ -99,11 +100,35 @@ def driveModelNvidia():
     model.compile(loss="mse", optimizer="adam")
     return model
 
+def driveModelCommaai():
+    """Comma.ai Steering model
+        https://github.com/commaai/research/blob/master/train_steering_model.py
+    """
+    model = Sequential()
+    model.add(Lambda(lambda x: x/127.5 - 1., input_shape=IMG_SHAPE))
+    model.add(Convolution2D(16, 8, 8, subsample=(4, 4), border_mode="same"))
+    model.add(ELU())
+    model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same"))
+    model.add(ELU())
+    model.add(Convolution2D(64, 5, 5, subsample=(2, 2), border_mode="same"))
+    model.add(Flatten())
+    model.add(Dropout(.2))
+    model.add(ELU())
+    model.add(Dense(512))
+    model.add(Dropout(.5))
+    model.add(ELU())
+    model.add(Dense(1))
+    
+    model.compile(optimizer="adam", loss="mse")
+    return model
+
 def driveModel(modelName):
     if modelName == 'simple':
         return driveModelSimple()
     if modelName == 'nvidia':
         return driveModelNvidia()
+    if modelName == 'commaai':
+        return driveModelCommaai()
     raise "Unknown model:"+modelName
 
 
@@ -188,7 +213,7 @@ if __name__ == '__main__':
                 nb_val_samples  = args.numTrain*0.2  )
     
     model.save_weights(args.modelName+".h5")
-    open(args.modelName+".json", "w").write(model.to_json(indent=4))
+    open(args.modelName+".json", "w").write(model.to_json(indent=4, sort_keys=True))
 
 
 # For simple model use batchSize = 25, numTrain = 400

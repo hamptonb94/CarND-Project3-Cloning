@@ -86,33 +86,32 @@ def generateBatch(logdata, batch_size):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
     parser.add_argument('modelName', type=str, help='Name of NN model to train.')
+    parser.add_argument('batchSize', type=int, help='Number of images per batch.', nargs='?', default=128)
+    parser.add_argument('numTrain',  type=int, help='Number of images per epoch.', nargs='?', default=4000)
     args = parser.parse_args()
     
-    logName   = 'driving_log.csv'
-    batchSize = 128
-    nbTrain   = 4000
-    
-    # set up simple model if given
-    if args.modelName == 'simple':
-        logName   = 'simple_train.csv'
-        batchSize = 25
-        nbTrain   = 400
-        
+    # set up input log data
+    logName = 'simple_train.csv' if args.modelName == 'simple' else 'driving_log.csv'
     logdata = LogData(filename = logName)
     
     model = driveModel(args.modelName)
     model.summary()
     
-    generatorTrain = generateBatch(logdata, batchSize)
-    generatorValid = generateBatch(logdata, batchSize)
+    generatorTrain = generateBatch(logdata, args.batchSize)
+    generatorValid = generateBatch(logdata, args.batchSize)
     
     history = model.fit_generator(
                 generator = generatorTrain,
-                samples_per_epoch = nbTrain,
+                samples_per_epoch = args.numTrain,
                 nb_epoch = N_EPOCHS,
                 verbose = 2,
                 validation_data = generatorValid,
-                nb_val_samples  = nbTrain*0.2  )
+                nb_val_samples  = args.numTrain*0.2  )
     
     model.save_weights(args.modelName+".h5")
     open(args.modelName+".json", "w").write(model.to_json(indent=4))
+
+
+# For simple model use batchSize = 25, numTrain = 400
+
+

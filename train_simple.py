@@ -36,6 +36,53 @@ def driveModelSimple():
     model.compile(loss="mse", optimizer="adam")
     return model
 
+def driveModelNvidia():
+    """NVIDIA Steering model"""
+    
+    model = Sequential()
+    # Normalize each pixel
+    model.add(Lambda(lambda x: x/127.5 - 1., input_shape=IMG_SHAPE, output_shape=IMG_SHAPE))
+    
+    # NVIDIA Steering model
+    model.add(Convolution2D(24, 5, 5, subsample=(2, 2), border_mode="valid", init=CONV_INIT, W_regularizer=l2(0.01)))
+    model.add(ELU())
+    model.add(Dropout(KEEP))
+
+    model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode="valid", init=CONV_INIT))
+    model.add(ELU())
+    model.add(Dropout(KEEP))
+    
+    model.add(Convolution2D(48, 5, 5, subsample=(2, 2), border_mode="valid", init=CONV_INIT))
+    model.add(ELU())
+    model.add(Dropout(KEEP))
+
+    model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init=CONV_INIT))
+    model.add(ELU())
+    model.add(Dropout(KEEP))
+
+    model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode="valid", init=CONV_INIT))
+    model.add(ELU())
+    model.add(Dropout(KEEP))
+    
+    model.add(Flatten())
+
+    model.add(Dense(100))
+    model.add(ELU())
+    model.add(Dropout(0.2))
+    
+    model.add(Dense(50))
+    model.add(ELU())
+    model.add(Dropout(0.2))
+    
+    model.add(Dense(10))
+    model.add(ELU())
+    
+    model.add(Dense(1))
+    
+    model.compile(loss="mse", optimizer="adam")
+    return model
+    
+
 def driveModel(modelName):
     if modelName == 'simple':
         return driveModelSimple()

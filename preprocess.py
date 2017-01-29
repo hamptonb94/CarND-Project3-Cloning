@@ -37,9 +37,9 @@ def findSmallSample(logdata, num_samples = 10):
     rights = []
     for row in logdata:
         steering = float(row['steering'])
-        if steering < -0.4:
+        if steering < -0.2:
             lefts.append(row)
-        if steering > 0.4:
+        if steering > 0.2:
             rights.append(row)
         if steering > -0.0001 and steering < 0.0001 and len(centers) < num_samples:
             centers.append(row)
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         plotImage(examples[name], name)
         formatImage(examples[name], name)
     
-    samples = findSmallSample(logdata.rows, num_samples = 50)
+    samples = findSmallSample(logdata.rows, num_samples = 100)
     with open(os.path.join(DATA_DIR,'simple_train.csv'), 'w') as csvfile:
         writer = DictWriter(csvfile, fieldnames=logdata.rows[0].keys())
         writer.writeheader()

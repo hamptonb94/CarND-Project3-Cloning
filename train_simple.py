@@ -1,23 +1,22 @@
+import argparse
 import numpy as np
 import cv2
 from preprocess import *
 from sklearn.utils import shuffle
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU, MaxPooling2D, Convolution2D
+from keras.regularizers import l2
 
-LOG_FILE = 'simple_train.csv'
-MODEL_NAME = 'model_s'
 N_EPOCHS = 5
-BATCH_SIZE=25
-N_SAMP_TRAIN = 400
-N_SAMP_VALID = N_SAMP_TRAIN * 0.2
+KEEP     = 0.2
+CONV_INIT='glorot_uniform'
 
 # pre-process data:
 N_ROWS = 160-80
 N_COLS = 320
 IMG_SHAPE = (N_ROWS, N_COLS, 3)
 
-def driveModel():
+def driveModelSimple():
     """Super simple NN model to test process flow"""
     
     model = Sequential()
@@ -37,8 +36,15 @@ def driveModel():
     model.compile(loss="mse", optimizer="adam")
     return model
 
+def driveModel(modelName):
+    if modelName == 'simple':
+        return driveModelSimple()
+    if modelName == 'nvidia':
+        return driveModelNvidia()
+    raise "Unknown model:"+modelName
 
-def generateBatch(logdata, batch_size=128):
+
+def generateBatch(logdata, batch_size):
     while logdata:
         batch_x = []
         batch_y = []
@@ -77,25 +83,36 @@ def generateBatch(logdata, batch_size=128):
                 batch_y = []
             
 
-
-
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Remote Driving')
+    parser.add_argument('modelName', type=str, help='Name of NN model to train.')
+    args = parser.parse_args()
     
-    logdata = LogData(filename = LOG_FILE)
+    logName   = 'driving_log.csv'
+    batchSize = 128
+    nbTrain   = 4000
     
-    model = driveModel()
+    # set up simple model if given
+    if args.modelName == 'simple':
+        logName   = 'simple_train.csv'
+        batchSize = 25
+        nbTrain   = 400
+        
+    logdata = LogData(filename = logName)
+    
+    model = driveModel(args.modelName)
     model.summary()
     
-    generatorTrain = generateBatch(logdata, BATCH_SIZE)
-    generatorValid = generateBatch(logdata, BATCH_SIZE)
+    generatorTrain = generateBatch(logdata, batchSize)
+    generatorValid = generateBatch(logdata, batchSize)
     
     history = model.fit_generator(
                 generator = generatorTrain,
-                samples_per_epoch = N_SAMP_TRAIN,
+                samples_per_epoch = nbTrain,
                 nb_epoch = N_EPOCHS,
                 verbose = 2,
                 validation_data = generatorValid,
-                nb_val_samples  = N_SAMP_VALID  )
+                nb_val_samples  = nbTrain*0.2  )
     
-    model.save_weights(MODEL_NAME+".h5")
-    open(MODEL_NAME+".json", "w").write(model.to_json(indent=4))
+    model.save_weights(args.modelName+".h5")
+    open(args.modelName+".json", "w").write(model.to_json(indent=4))

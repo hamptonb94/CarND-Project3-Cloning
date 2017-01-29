@@ -1,96 +1,85 @@
 {
+    "keras_version": "1.1.2",
+    "class_name": "Sequential",
     "config": [
         {
+            "class_name": "Lambda",
             "config": {
+                "output_shape_type": "raw",
+                "arguments": {},
                 "name": "lambda_1",
-                "trainable": true,
-                "batch_input_shape": [
-                    null,
-                    80,
-                    320,
-                    3
-                ],
                 "input_dtype": "float32",
                 "function": [
-                    "\u00e3\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0002\u0000\u0000\u0000S\u0000\u0000\u0000s\f\u0000\u0000\u0000|\u0000\u0000d\u0001\u0000\u001bd\u0002\u0000\u0018S)\u0003N\u00e7\u0000\u0000\u0000\u0000\u0000\u00e0_@\u00e7\u0000\u0000\u0000\u0000\u0000\u0000\u00f0?\u00a9\u0000)\u0001\u00da\u0001xr\u0003\u0000\u0000\u0000r\u0003\u0000\u0000\u0000\u00fa\btrain.py\u00da\b<lambda>.\u0000\u0000\u0000s\u0000\u0000\u0000\u0000",
+                    "\u00e3\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0002\u0000\u0000\u0000S\u0000\u0000\u0000s\f\u0000\u0000\u0000|\u0000\u0000d\u0001\u0000\u001bd\u0002\u0000\u0018S)\u0003N\u00e7\u0000\u0000\u0000\u0000\u0000\u00e0_@\u00e7\u0000\u0000\u0000\u0000\u0000\u0000\u00f0?\u00a9\u0000)\u0001\u00da\u0001xr\u0003\u0000\u0000\u0000r\u0003\u0000\u0000\u0000\u00fa\btrain.py\u00da\b<lambda>-\u0000\u0000\u0000s\u0000\u0000\u0000\u0000",
                     null,
                     null
                 ],
-                "output_shape_type": "raw",
-                "output_shape": [
-                    80,
-                    320,
-                    3
-                ],
-                "function_type": "lambda",
-                "arguments": {}
-            },
-            "class_name": "Lambda"
-        },
-        {
-            "config": {
                 "trainable": true,
-                "dim_ordering": "tf",
+                "function_type": "lambda",
                 "batch_input_shape": [
                     null,
-                    80,
-                    320,
+                    66,
+                    200,
                     3
                 ],
-                "init": "glorot_uniform",
+                "output_shape": null
+            }
+        },
+        {
+            "class_name": "Convolution2D",
+            "config": {
+                "activity_regularizer": null,
+                "border_mode": "valid",
+                "W_regularizer": null,
+                "b_constraint": null,
                 "nb_filter": 24,
+                "nb_col": 3,
+                "nb_row": 3,
+                "W_constraint": null,
+                "name": "convolution2d_1",
+                "b_regularizer": null,
+                "bias": true,
+                "trainable": true,
+                "dim_ordering": "tf",
+                "activation": "linear",
                 "subsample": [
                     2,
                     2
                 ],
-                "b_regularizer": null,
-                "name": "Conv2D_1",
-                "nb_col": 3,
-                "input_dtype": "float32",
-                "border_mode": "valid",
-                "nb_row": 3,
-                "activity_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "W_regularizer": null,
-                "activation": "linear",
-                "W_constraint": null
-            },
-            "class_name": "Convolution2D"
+                "init": "glorot_uniform"
+            }
         },
         {
+            "class_name": "ELU",
             "config": {
+                "trainable": true,
                 "name": "elu_1",
-                "trainable": true,
                 "alpha": 1.0
-            },
-            "class_name": "ELU"
+            }
         },
         {
-            "config": {
-                "name": "Flatten",
-                "trainable": true
-            },
-            "class_name": "Flatten"
-        },
-        {
+            "class_name": "Flatten",
             "config": {
                 "trainable": true,
+                "name": "Flatten"
+            }
+        },
+        {
+            "class_name": "Dense",
+            "config": {
                 "activity_regularizer": null,
-                "W_regularizer": null,
-                "init": "glorot_uniform",
-                "activation": "linear",
-                "b_regularizer": null,
-                "name": "Output",
-                "W_constraint": null,
-                "bias": true,
-                "b_constraint": null,
                 "output_dim": 1,
-                "input_dim": null
-            },
-            "class_name": "Dense"
+                "W_regularizer": null,
+                "b_constraint": null,
+                "b_regularizer": null,
+                "W_constraint": null,
+                "name": "Output",
+                "input_dim": null,
+                "bias": true,
+                "trainable": true,
+                "activation": "linear",
+                "init": "glorot_uniform"
+            }
         }
-    ],
-    "keras_version": "1.1.2",
-    "class_name": "Sequential"
+    ]
 }

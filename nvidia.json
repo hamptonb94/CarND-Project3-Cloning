@@ -1,10 +1,11 @@
 {
-    "class_name": "Sequential",
     "config": [
         {
-            "class_name": "Lambda",
             "config": {
                 "trainable": true,
+                "output_shape_type": "raw",
+                "name": "lambda_1",
+                "function_type": "lambda",
                 "batch_input_shape": [
                     null,
                     80,
@@ -12,341 +13,301 @@
                     3
                 ],
                 "function": [
-                    "\u00e3\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0002\u0000\u0000\u0000S\u0000\u0000\u0000s\f\u0000\u0000\u0000|\u0000\u0000d\u0001\u0000\u001bd\u0002\u0000\u0018S)\u0003N\u00e7\u0000\u0000\u0000\u0000\u0000\u00e0_@\u00e7\u0000\u0000\u0000\u0000\u0000\u0000\u00f0?\u00a9\u0000)\u0001\u00da\u0001xr\u0003\u0000\u0000\u0000r\u0003\u0000\u0000\u0000\u00fa\btrain.py\u00da\b<lambda>B\u0000\u0000\u0000s\u0000\u0000\u0000\u0000",
+                    "\u00e3\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0002\u0000\u0000\u0000S\u0000\u0000\u0000s\f\u0000\u0000\u0000|\u0000\u0000d\u0001\u0000\u001bd\u0002\u0000\u0018S)\u0003N\u00e7\u0000\u0000\u0000\u0000\u0000\u00e0_@\u00e7\u0000\u0000\u0000\u0000\u0000\u0000\u00f0?\u00a9\u0000)\u0001\u00da\u0001xr\u0003\u0000\u0000\u0000r\u0003\u0000\u0000\u0000\u00fa\btrain.py\u00da\b<lambda>A\u0000\u0000\u0000s\u0000\u0000\u0000\u0000",
                     null,
                     null
                 ],
-                "output_shape_type": "raw",
-                "output_shape": [
-                    80,
-                    320,
-                    3
-                ],
-                "input_dtype": "float32",
-                "name": "lambda_1",
                 "arguments": {},
-                "function_type": "lambda"
-            }
+                "input_dtype": "float32",
+                "output_shape": null
+            },
+            "class_name": "Lambda"
         },
         {
-            "class_name": "Convolution2D",
             "config": {
-                "activation": "linear",
-                "trainable": true,
-                "nb_col": 5,
-                "nb_row": 5,
-                "W_constraint": null,
-                "W_regularizer": {
-                    "l1": 0.0,
-                    "l2": 0.009999999776482582,
-                    "name": "L1L2Regularizer"
-                },
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
-                "border_mode": "valid",
-                "b_regularizer": null,
+                "init": "he_normal",
                 "dim_ordering": "tf",
                 "nb_filter": 24,
+                "activation": "linear",
+                "b_regularizer": null,
+                "name": "convolution2d_1",
+                "W_regularizer": null,
+                "border_mode": "valid",
+                "trainable": true,
+                "b_constraint": null,
+                "nb_row": 5,
+                "bias": true,
+                "W_constraint": null,
+                "activity_regularizer": null,
                 "subsample": [
                     2,
                     2
                 ],
-                "name": "convolution2d_1"
-            }
+                "nb_col": 5
+            },
+            "class_name": "Convolution2D"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_1"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dropout",
             "config": {
-                "p": 0.2,
-                "trainable": true,
-                "name": "dropout_1"
-            }
-        },
-        {
-            "class_name": "Convolution2D",
-            "config": {
-                "activation": "linear",
-                "trainable": true,
-                "nb_col": 5,
-                "nb_row": 5,
-                "W_constraint": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
-                "border_mode": "valid",
-                "b_regularizer": null,
+                "init": "he_normal",
                 "dim_ordering": "tf",
                 "nb_filter": 36,
+                "activation": "linear",
+                "b_regularizer": null,
+                "name": "convolution2d_2",
+                "W_regularizer": null,
+                "border_mode": "valid",
+                "trainable": true,
+                "b_constraint": null,
+                "nb_row": 5,
+                "bias": true,
+                "W_constraint": null,
+                "activity_regularizer": null,
                 "subsample": [
                     2,
                     2
                 ],
-                "name": "convolution2d_2"
-            }
+                "nb_col": 5
+            },
+            "class_name": "Convolution2D"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_2"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dropout",
             "config": {
-                "p": 0.2,
-                "trainable": true,
-                "name": "dropout_2"
-            }
-        },
-        {
-            "class_name": "Convolution2D",
-            "config": {
-                "activation": "linear",
-                "trainable": true,
-                "nb_col": 5,
-                "nb_row": 5,
-                "W_constraint": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
-                "border_mode": "valid",
-                "b_regularizer": null,
+                "init": "he_normal",
                 "dim_ordering": "tf",
                 "nb_filter": 48,
+                "activation": "linear",
+                "b_regularizer": null,
+                "name": "convolution2d_3",
+                "W_regularizer": null,
+                "border_mode": "valid",
+                "trainable": true,
+                "b_constraint": null,
+                "nb_row": 5,
+                "bias": true,
+                "W_constraint": null,
+                "activity_regularizer": null,
                 "subsample": [
                     2,
                     2
                 ],
-                "name": "convolution2d_3"
-            }
+                "nb_col": 5
+            },
+            "class_name": "Convolution2D"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_3"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dropout",
             "config": {
-                "p": 0.2,
-                "trainable": true,
-                "name": "dropout_3"
-            }
-        },
-        {
-            "class_name": "Convolution2D",
-            "config": {
-                "activation": "linear",
-                "trainable": true,
-                "nb_col": 3,
-                "nb_row": 3,
-                "W_constraint": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
-                "border_mode": "valid",
-                "b_regularizer": null,
+                "init": "he_normal",
                 "dim_ordering": "tf",
                 "nb_filter": 64,
+                "activation": "linear",
+                "b_regularizer": null,
+                "name": "convolution2d_4",
+                "W_regularizer": null,
+                "border_mode": "valid",
+                "trainable": true,
+                "b_constraint": null,
+                "nb_row": 3,
+                "bias": true,
+                "W_constraint": null,
+                "activity_regularizer": null,
                 "subsample": [
                     1,
                     1
                 ],
-                "name": "convolution2d_4"
-            }
+                "nb_col": 3
+            },
+            "class_name": "Convolution2D"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_4"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dropout",
             "config": {
-                "p": 0.2,
-                "trainable": true,
-                "name": "dropout_4"
-            }
-        },
-        {
-            "class_name": "Convolution2D",
-            "config": {
-                "activation": "linear",
-                "trainable": true,
-                "nb_col": 3,
-                "nb_row": 3,
-                "W_constraint": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
-                "border_mode": "valid",
-                "b_regularizer": null,
+                "init": "he_normal",
                 "dim_ordering": "tf",
                 "nb_filter": 64,
+                "activation": "linear",
+                "b_regularizer": null,
+                "name": "convolution2d_5",
+                "W_regularizer": null,
+                "border_mode": "valid",
+                "trainable": true,
+                "b_constraint": null,
+                "nb_row": 3,
+                "bias": true,
+                "W_constraint": null,
+                "activity_regularizer": null,
                 "subsample": [
                     1,
                     1
                 ],
-                "name": "convolution2d_5"
-            }
+                "nb_col": 3
+            },
+            "class_name": "Convolution2D"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_5"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dropout",
-            "config": {
-                "p": 0.2,
-                "trainable": true,
-                "name": "dropout_5"
-            }
-        },
-        {
-            "class_name": "Flatten",
             "config": {
                 "trainable": true,
                 "name": "flatten_1"
-            }
+            },
+            "class_name": "Flatten"
         },
         {
-            "class_name": "Dense",
             "config": {
-                "activation": "linear",
-                "trainable": true,
-                "W_constraint": null,
-                "output_dim": 100,
-                "input_dim": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
+                "init": "he_normal",
+                "output_dim": 1164,
                 "b_regularizer": null,
-                "name": "dense_1"
-            }
+                "name": "dense_1",
+                "W_regularizer": null,
+                "activity_regularizer": null,
+                "trainable": true,
+                "b_constraint": null,
+                "activation": "linear",
+                "bias": true,
+                "W_constraint": null,
+                "input_dim": null
+            },
+            "class_name": "Dense"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_6"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dropout",
             "config": {
-                "p": 0.2,
-                "trainable": true,
-                "name": "dropout_6"
-            }
-        },
-        {
-            "class_name": "Dense",
-            "config": {
-                "activation": "linear",
-                "trainable": true,
-                "W_constraint": null,
-                "output_dim": 50,
-                "input_dim": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
+                "init": "he_normal",
+                "output_dim": 100,
                 "b_regularizer": null,
-                "name": "dense_2"
-            }
+                "name": "dense_2",
+                "W_regularizer": null,
+                "activity_regularizer": null,
+                "trainable": true,
+                "b_constraint": null,
+                "activation": "linear",
+                "bias": true,
+                "W_constraint": null,
+                "input_dim": null
+            },
+            "class_name": "Dense"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_7"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dropout",
             "config": {
-                "p": 0.2,
-                "trainable": true,
-                "name": "dropout_7"
-            }
-        },
-        {
-            "class_name": "Dense",
-            "config": {
-                "activation": "linear",
-                "trainable": true,
-                "W_constraint": null,
-                "output_dim": 10,
-                "input_dim": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
+                "init": "he_normal",
+                "output_dim": 50,
                 "b_regularizer": null,
-                "name": "dense_3"
-            }
+                "name": "dense_3",
+                "W_regularizer": null,
+                "activity_regularizer": null,
+                "trainable": true,
+                "b_constraint": null,
+                "activation": "linear",
+                "bias": true,
+                "W_constraint": null,
+                "input_dim": null
+            },
+            "class_name": "Dense"
         },
         {
-            "class_name": "ELU",
             "config": {
                 "trainable": true,
                 "alpha": 1.0,
                 "name": "elu_8"
-            }
+            },
+            "class_name": "ELU"
         },
         {
-            "class_name": "Dense",
             "config": {
-                "activation": "linear",
-                "trainable": true,
-                "W_constraint": null,
-                "output_dim": 1,
-                "input_dim": null,
-                "W_regularizer": null,
-                "bias": true,
-                "b_constraint": null,
-                "activity_regularizer": null,
-                "init": "glorot_uniform",
+                "init": "he_normal",
+                "output_dim": 10,
                 "b_regularizer": null,
-                "name": "dense_4"
-            }
+                "name": "dense_4",
+                "W_regularizer": null,
+                "activity_regularizer": null,
+                "trainable": true,
+                "b_constraint": null,
+                "activation": "linear",
+                "bias": true,
+                "W_constraint": null,
+                "input_dim": null
+            },
+            "class_name": "Dense"
+        },
+        {
+            "config": {
+                "trainable": true,
+                "alpha": 1.0,
+                "name": "elu_9"
+            },
+            "class_name": "ELU"
+        },
+        {
+            "config": {
+                "init": "he_normal",
+                "output_dim": 1,
+                "b_regularizer": null,
+                "name": "dense_5",
+                "W_regularizer": null,
+                "activity_regularizer": null,
+                "trainable": true,
+                "b_constraint": null,
+                "activation": "linear",
+                "bias": true,
+                "W_constraint": null,
+                "input_dim": null
+            },
+            "class_name": "Dense"
         }
     ],
-    "keras_version": "1.1.2"
+    "keras_version": "1.1.2",
+    "class_name": "Sequential"
 }

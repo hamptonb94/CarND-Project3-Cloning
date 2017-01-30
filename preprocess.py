@@ -59,7 +59,17 @@ def formatImage(logrow, name):
     plotImg = plt.imshow(small)
     plt.title("Steering = "+logrow['steering']+" RESIZED")
     plt.savefig(OUT_DIR+"/"+name+",cropped,rs.png")
-    
+
+def formatImage2(logrow, name):
+    image = mpimg.imread(os.path.join(DATA_DIR, logrow['center']))
+    image = cv2.resize(image, (200,100))
+    plotImg = plt.imshow(image)
+    plt.title("Steering = "+logrow['steering']+" RESIZED")
+    plt.savefig(OUT_DIR+"/"+name+",sized1.png")
+    cropped = image[28:94, 0:200]
+    plotImg = plt.imshow(cropped)
+    plt.title("Steering = "+logrow['steering']+" CROPPED")
+    plt.savefig(OUT_DIR+"/"+name+",cropped2.png") 
 
 def plotImage(logrow, name):
     img = mpimg.imread(os.path.join(DATA_DIR, logrow['center']))
@@ -77,7 +87,6 @@ def plotHistogram(logdata):
 
 if __name__ == '__main__':
     logdata = LogData()
-    print(logdata.rows[0])
     
     plotHistogram(logdata)
     
@@ -85,6 +94,7 @@ if __name__ == '__main__':
     for name in examples:
         plotImage(examples[name], name)
         formatImage(examples[name], name)
+        formatImage2(examples[name], name)
     
     samples = findSmallSample(logdata.rows, num_samples = 100)
     with open(os.path.join(DATA_DIR,'simple_train.csv'), 'w') as csvfile:

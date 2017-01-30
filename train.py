@@ -154,6 +154,12 @@ def generateTrainingBatch(logdata, batch_size):
             image  = image[60:140, 0:320]  # crop top and bottom
             image = cv2.resize(image, (N_COLS, N_ROWS))
             
+            # randomize brightness
+            imageHSV        = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
+            brightness      = .25+np.random.uniform()
+            imageHSV[:,:,2] = imageHSV[:,:,2]*brightness
+            image           = cv2.cvtColor(imageHSV,cv2.COLOR_HSV2RGB)
+            
             steering = float(row['steering'])
             #adjust steering for left/right camera angles
             if camera == 'left' : steering += 0.2

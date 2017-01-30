@@ -25,16 +25,23 @@ class LogData:
     """Class to load the log data and split into training/validation"""
     def __init__(self, filename = 'driving_log.csv', directory=DATA_DIR):
         self.rows = []
+        self.rowIndexes = {'left':list(), 'center':list(), 'right':list()}
         with open(os.path.join(directory, filename)) as csvfile:
             reader = DictReader(csvfile)
+            i = -1
             for row in reader:
+                i += 1
                 self.rows.append(row)
+                steering = float(row['steering'])
+                if   steering < -0.05: self.rowIndexes['left'  ].append(i)
+                elif steering >  0.05: self.rowIndexes['right' ].append(i)
+                else                 : self.rowIndexes['center'].append(i)
+        
         print("Driving Log processed. Entries:", len(self.rows))
-        random.shuffle(self.rows)
-        split = int((1.0-R_VALID)*len(self.rows))
-        self.trainRows = self.rows[:split]
-        self.validRows = self.rows[split:]
-        print("Training/Validation sizes:", len(self.trainRows), len(self.validRows))
+        print("left,center,right samples:     ", 
+                len(self.rowIndexes['left']), 
+                len(self.rowIndexes['center']),
+                len(self.rowIndexes['right']))
 
 
 def driveModelSimple():
@@ -134,10 +141,13 @@ def driveModel(modelName):
 
 def generateTrainingBatch(logdata, batch_size):
     """For training we will use all camera angles, and do augmentation"""
+    batch_x = []
+    batch_y = []
     while logdata:
-        batch_x = []
-        batch_y = []
-        for row in logdata.trainRows:
+        for steerType in ['left','center','right']:
+            rowIdx = random.choice(logdata.rowIndexes[steerType])
+            row = logdata.rows[rowIdx]
+        
             # we will choose between the 3 cameras and get the image
             camera = random.choice(['left','center','right'])
             image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
@@ -151,15 +161,7 @@ def generateTrainingBatch(logdata, batch_size):
                         
             batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
             batch_y.append(np.array([[steering]]))
-            
-            # to augment data with left/right steering we will flip images
-            # that have non-zero steering which will double those samples
-            if steering < -0.01 or steering > 0.01 and len(batch_x) < batch_size:
-                image = cv2.flip(image, 1)
-                steering *= -1
-                batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
-                batch_y.append(np.array([[steering]]))
-            
+                        
             # yield an entire batch at once
             if len(batch_x) == batch_size:
                 batch_x, batch_y, = shuffle(batch_x, batch_y, random_state=21)
@@ -190,27 +192,24 @@ def generateValidationBatch(logdata, batch_size):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
     parser.add_argument('modelName', type=str, help='Name of NN model to train.')
-    parser.add_argument('batchSize', type=int, help='Number of images per batch.', nargs='?', default= 100)
-    parser.add_argument('numTrain',  type=int, help='Number of images per epoch.', nargs='?', default=8000)
+    parser.add_argument('batchSize', type=int, help='Number of images per batch.', nargs='?', default=  100)
+    parser.add_argument('numTrain',  type=int, help='Number of images per epoch.', nargs='?', default=10000)
     args = parser.parse_args()
     
     # set up input log data
-    logName = 'simple_train.csv' if args.modelName == 'simple' else 'driving_log.csv'
+    logName = 'driving_log.csv'
     logdata = LogData(filename = logName)
     
     model = driveModel(args.modelName)
     model.summary()
     
     generatorTrain = generateTrainingBatch(  logdata, args.batchSize)
-    generatorValid = generateValidationBatch(logdata, args.batchSize)
     
     history = model.fit_generator(
                 generator = generatorTrain,
                 samples_per_epoch = args.numTrain,
                 nb_epoch = N_EPOCHS,
-                verbose = 2,
-                validation_data = generatorValid,
-                nb_val_samples  = args.numTrain*0.2  )
+                verbose = 2  )
     
     model.save_weights(args.modelName+".h5")
     open(args.modelName+".json", "w").write(model.to_json(indent=4, sort_keys=True))

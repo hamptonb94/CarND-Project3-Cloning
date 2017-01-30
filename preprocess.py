@@ -59,6 +59,15 @@ def formatImage(logrow, name):
     plotImg = plt.imshow(small)
     plt.title("Steering = "+logrow['steering']+" RESIZED")
     plt.savefig(OUT_DIR+"/"+name+",cropped,rs.png")
+    i = 0
+    for brightness in np.arange(0.3,1.0,0.1):
+        i += 1
+        imageHSV        = cv2.cvtColor(small,cv2.COLOR_RGB2HSV)
+        imageHSV[:,:,2] = imageHSV[:,:,2]*brightness
+        image2          = cv2.cvtColor(imageHSV,cv2.COLOR_HSV2RGB)
+        plotImg = plt.imshow(image2)
+        plt.title("Steering = "+logrow['steering']+" brightness={0:.3f}".format(brightness))
+        plt.savefig(OUT_DIR+"/"+name+",cropped,rs,b"+repr(i)+".png")
 
 def formatImage2(logrow, name):
     image = mpimg.imread(os.path.join(DATA_DIR, logrow['center']))

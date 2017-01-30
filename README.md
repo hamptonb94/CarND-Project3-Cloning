@@ -3,6 +3,8 @@
 
 TODO
 
+![Histogram (raw Udacity set)](procout/hist.png)
+
 # Acknowledgements 
 
 * Nvidia [model](https://arxiv.org/pdf/1604.07316v1.pdf)

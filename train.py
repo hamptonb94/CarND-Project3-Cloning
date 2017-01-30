@@ -10,7 +10,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU, MaxPooling2D, Convolution2D
 from keras.regularizers import l2
 
-N_EPOCHS = 5
+N_EPOCHS = 8
 R_VALID  = 0.15
 LAYER_INIT='he_normal'
 
@@ -28,20 +28,9 @@ class LogData:
         self.rowIndexes = {'left':list(), 'center':list(), 'right':list()}
         with open(os.path.join(directory, filename)) as csvfile:
             reader = DictReader(csvfile)
-            i = -1
             for row in reader:
-                i += 1
                 self.rows.append(row)
-                steering = float(row['steering'])
-                if   steering < -0.05: self.rowIndexes['left'  ].append(i)
-                elif steering >  0.05: self.rowIndexes['right' ].append(i)
-                else                 : self.rowIndexes['center'].append(i)
-        
         print("Driving Log processed. Entries:", len(self.rows))
-        print("left,center,right samples:     ", 
-                len(self.rowIndexes['left']), 
-                len(self.rowIndexes['center']),
-                len(self.rowIndexes['right']))
 
 
 def driveModelSimple():
@@ -144,10 +133,7 @@ def generateTrainingBatch(logdata, batch_size):
     batch_x = []
     batch_y = []
     while logdata:
-        for steerType in ['left','center','right']:
-            rowIdx = random.choice(logdata.rowIndexes[steerType])
-            row = logdata.rows[rowIdx]
-        
+        for row in logdata.rows:
             # we will choose between the 3 cameras and get the image
             camera = random.choice(['left','center','right'])
             image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
@@ -160,14 +146,21 @@ def generateTrainingBatch(logdata, batch_size):
             imageHSV[:,:,2] = imageHSV[:,:,2]*brightness
             image           = cv2.cvtColor(imageHSV,cv2.COLOR_HSV2RGB)
             
-            steering = float(row['steering'])
+            steering  = float(row['steering'])
+            nonCenter = steering < -0.02 or steering > 0.02
             #adjust steering for left/right camera angles
-            if camera == 'left' : steering += 0.2
-            if camera == 'right': steering -= 0.2
+            if camera == 'left' : steering += 0.25
+            if camera == 'right': steering -= 0.25
                         
             batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
             batch_y.append(np.array([[steering]]))
-                        
+            
+            if nonCenter and len(batch_x) < batch_size:
+                image = cv2.flip(image, 1)
+                steering *= -1
+                batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
+                batch_y.append(np.array([[steering]]))
+            
             # yield an entire batch at once
             if len(batch_x) == batch_size:
                 batch_x, batch_y, = shuffle(batch_x, batch_y, random_state=21)
@@ -198,8 +191,8 @@ def generateValidationBatch(logdata, batch_size):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
     parser.add_argument('modelName', type=str, help='Name of NN model to train.')
-    parser.add_argument('batchSize', type=int, help='Number of images per batch.', nargs='?', default=  100)
-    parser.add_argument('numTrain',  type=int, help='Number of images per epoch.', nargs='?', default=10000)
+    parser.add_argument('batchSize', type=int, help='Number of images per batch.', nargs='?', default=  250)
+    parser.add_argument('numTrain',  type=int, help='Number of images per epoch.', nargs='?', default=20000)
     args = parser.parse_args()
     
     # set up input log data

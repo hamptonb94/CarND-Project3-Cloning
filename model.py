@@ -11,7 +11,6 @@ from keras.layers import Dense, Dropout, Flatten, Lambda, ELU, MaxPooling2D, Con
 from keras.regularizers import l2
 
 N_EPOCHS = 8
-R_VALID  = 0.15
 LAYER_INIT='he_normal'
 
 # pre-process data:
@@ -22,7 +21,7 @@ IMG_SHAPE = (N_ROWS, N_COLS, 3)
 
 DATA_DIR = 'data'
 class LogData:
-    """Class to load the log data and split into training/validation"""
+    """Class to load the driving log lists of image files"""
     def __init__(self, filename = 'driving_log.csv', directory=DATA_DIR):
         self.rows = []
         self.rowIndexes = {'left':list(), 'center':list(), 'right':list()}
@@ -138,7 +137,7 @@ def generateTrainingBatch(logdata, batch_size):
             camera = random.choice(['left','center','right'])
             image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
             image  = image[60:140, 0:320]  # crop top and bottom
-            image = cv2.resize(image, (N_COLS, N_ROWS))
+            image = cv2.resize(image, (N_COLS, N_ROWS)) # resize to network input shape
             
             # randomize brightness
             imageHSV        = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
@@ -155,6 +154,8 @@ def generateTrainingBatch(logdata, batch_size):
             batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
             batch_y.append(np.array([[steering]]))
             
+            # add more non-center samples by flipping them since
+            # there are sooo many driving center samples
             if nonCenter and len(batch_x) < batch_size:
                 image = cv2.flip(image, 1)
                 steering *= -1
@@ -168,25 +169,6 @@ def generateTrainingBatch(logdata, batch_size):
                 batch_x = []
                 batch_y = []
 
-def generateValidationBatch(logdata, batch_size):
-    """For validation we just return a batch of center images"""
-    while logdata:
-        batch_x = []
-        batch_y = []
-        for row in logdata.validRows:
-            camera = 'center'
-            image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
-            image  = image[60:140, 0:320]  # crop top and bottom
-            image = cv2.resize(image, (N_COLS, N_ROWS))
-            steering = float(row['steering'])
-            batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
-            batch_y.append(np.array([[steering]]))
-            # yield an entire batch at once
-            if len(batch_x) == batch_size:
-                batch_x, batch_y, = shuffle(batch_x, batch_y, random_state=21)
-                yield (np.vstack(batch_x), np.vstack(batch_y))
-                batch_x = []
-                batch_y = []
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')

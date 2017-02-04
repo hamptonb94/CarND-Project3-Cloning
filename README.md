@@ -82,6 +82,7 @@ I used a python generator to load images and steering angles.  I also did a smal
 
 * loop over rows in the training log:
     * randomly select the left, right, or center camera
+        * for left and right I updated the steering angle to "re-center" the car
     * crop the top 60 pixes, and 20 bottom pixels out
     * resize the image to 66x200
     * randomize the brightness level

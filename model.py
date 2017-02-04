@@ -24,7 +24,6 @@ class LogData:
     """Class to load the driving log lists of image files"""
     def __init__(self, filename = 'driving_log.csv', directory=DATA_DIR):
         self.rows = []
-        self.rowIndexes = {'left':list(), 'center':list(), 'right':list()}
         with open(os.path.join(directory, filename)) as csvfile:
             reader = DictReader(csvfile)
             for row in reader:

@@ -58,15 +58,29 @@ Recovery from the right-side:
 
 From these images it looked like cropping the top and bottom would be helpful for the training.  It looks like most students did crop out the sky and hood, so I went ahead with the plan and removed 60 pixels off the top, and 20 from the bottom: 
 
-![Cropped](examples/center,cropped.png)
+![Cropped](procout/center,cropped,raw.png)
+
+As I started to train the NVIDIA model, I saw that the image size input should only be 66 by 200, so I also resized all images to this size in the generator.
+
+![Resized](procout/center,cropped,rs,b7,raw.png)
+
+All the images were pretty bright so I also did a random draw on brightness level from 0.3 to 1.0 for the training generator.
+
+![Brightness 0.3](procout/center,cropped,rs,b1,raw.png)
+![Brightness 0.8](procout/center,cropped,rs,b3,raw.png)
+![Brightness 1.0](procout/center,cropped,rs,b7,raw.png)
 
 
-After getting some training examples I decided that I should just use the Udacity training image set, so I downloaded the images and did a histogram plot.
+## Udacity training data
+
+After getting some training examples I decided that I should just try and use the Udacity training image set, so I downloaded the images and did a histogram plot.
 
 ![Histogram (raw Udacity set)](procout/hist.png)
 
-From the histogram I noticed that the majority of the samples were simple straight-ahead driving with no steering angle.  In order to better train the model I decided to augment any cases that the car was actually steering and recovering back to the center.  I also did some randomness on brightness since all the images were pretty bright.  
+From the histogram I noticed that the majority of the samples were simple straight-ahead driving with no steering angle.  In order to better train the model I decided to augment any cases that the car was actually steering and recovering back to the center.  
 
+![Left](examples/left.png)
+![Left-flipped](examples/left,flip.png)
 
 ## Network Model
 
@@ -110,24 +124,61 @@ The model provided can drive the simulation.  You can run the simulation with:
 
     python drive.py model.json
 
+On Windows you may need to do
 
-The model.py file does use a generator to yield batches of images to the training pipeline.  I have organized the code and commented where helpful.
+    python drive.py nvidia.json
+
+If the simulation is not operating you can see the results of my car driving track 1 and 2 in these videos:
+
+Track 1:
+
+[![Track 1](examples/youtube-track1.png)](https://youtu.be/BzKkoItX7Eg)
+
+Track 2:
+
+[![Track 2](examples/youtube-track2.png)](https://youtu.be/t4N6cA_kYLU)
+
+
 
 ## Model Architecture and Training Strategy
 
-1. I used the NVIDIA model. The first layer is a normalization lambda for each pixel in the input images.  After normalization there are 5 convolutional layers, and they used exponential linear units (ELU) for activation and non-linearity after each layer.
+1) I used the NVIDIA model. The first layer is a normalization lambda for each pixel in the input images.  After normalization there are 5 convolutional layers, and they used exponential linear units (ELU) for activation and non-linearity after each layer.
 
-2. When starting the project I experimented with training and validation splits, but it did not improve the overall performance of the model to drive the car.  So I switched to feeding all images to the training pipeline, and used the epoch loss as the metric for convergence.  Since the NVIDIA model does not use dropout layers, I used more images per epoch, and reduced the number of epochs to only 8 to avoid overfitting.  The loss at the end of 8 epochs was 0.033.  
+2) When the driving log is read in, the rows are shuffled and then 400 rows are set aside for the validation set.  Since we will randomly pull from 3 camera sources there are really 1200 validation images.  
 
-3. Since I was running on a GPU computer, the Adam optimizer was used for training.
+Since the NVIDIA model does not use dropout layers, I used more images per epoch, and reduced the number of epochs to only 10 to avoid overfitting.  I did experiment with dropout on the Comma.ai model a bit.  Sample results from training:
 
-4. See above discussion about data augmentation for ensuring there was enough training data for car recovery.
+    Epoch 1/10
+    (/gpu:0) -> (device: 0, name: GRID K520, pci bus id: 0000:00:03.0)
+    27s - loss: 0.1091 - val_loss: 0.0488
+    Epoch 2/10
+    26s - loss: 0.0494 - val_loss: 0.0385
+    Epoch 3/10
+    26s - loss: 0.0387 - val_loss: 0.0342
+    Epoch 4/10
+    26s - loss: 0.0328 - val_loss: 0.0235
+    Epoch 5/10
+    26s - loss: 0.0301 - val_loss: 0.0244
+    Epoch 6/10
+    26s - loss: 0.0273 - val_loss: 0.0233
+    Epoch 7/10
+    27s - loss: 0.0268 - val_loss: 0.0221
+    Epoch 8/10
+    26s - loss: 0.0261 - val_loss: 0.0219
+    Epoch 9/10
+    26s - loss: 0.0246 - val_loss: 0.0205
+    Epoch 10/10
+    26s - loss: 0.0247 - val_loss: 0.0220  
+
+3) Since I was running on a GPU computer, the Adam optimizer was used for training.
+
+4) See above discussion about data augmentation for ensuring there was enough training data for car recovery.
 
 ## Architecture and Training Documentation
 
-1. This README.md file covers all of my process and thinking for this project.
+1) This README.md file covers all of my process and thinking for this project.
 
-2. I used the NVIDIA neural network model.  Here is a visualization of the model:
+2) I used the NVIDIA neural network model.  Here is a visualization of the model:
 ```
 Layer (type)                     Output Shape          Param #     Connected to                     
 ==========================================================================================

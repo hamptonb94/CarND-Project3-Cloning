@@ -10,7 +10,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Lambda, ELU, MaxPooling2D, Convolution2D
 from keras.regularizers import l2
 
-N_EPOCHS = 8
+N_EPOCHS = 10
+N_VALID  = 800
 LAYER_INIT='he_normal'
 
 # pre-process data:
@@ -29,6 +30,10 @@ class LogData:
             for row in reader:
                 self.rows.append(row)
         print("Driving Log processed. Entries:", len(self.rows))
+        random.shuffle(self.rows)
+        self.trainRows = self.rows[N_VALID:]
+        self.validRows = self.rows[:N_VALID]
+        print("Training/Validation sizes:", len(self.trainRows), len(self.validRows))
 
 
 def driveModelSimple():
@@ -168,6 +173,25 @@ def generateTrainingBatch(logdata, batch_size):
                 batch_x = []
                 batch_y = []
 
+def generateValidationBatch(logdata, batch_size):
+    """For validation we just return a batch of center images"""
+    while logdata:
+        batch_x = []
+        batch_y = []
+        for row in logdata.validRows:
+            camera = 'center'
+            image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
+            image  = image[60:140, 0:320]  # crop top and bottom
+            image  = cv2.resize(image, (N_COLS, N_ROWS)) # resize to network input shape
+            steering = float(row['steering'])
+            batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
+            batch_y.append(np.array([[steering]]))
+            # yield an entire batch at once
+            if len(batch_x) == batch_size:
+                batch_x, batch_y, = shuffle(batch_x, batch_y, random_state=21)
+                yield (np.vstack(batch_x), np.vstack(batch_y))
+                batch_x = []
+                batch_y = []
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
@@ -184,12 +208,15 @@ if __name__ == '__main__':
     model.summary()
     
     generatorTrain = generateTrainingBatch(  logdata, args.batchSize)
+    generatorValid = generateValidationBatch(logdata, N_VALID/4)
     
     history = model.fit_generator(
                 generator = generatorTrain,
                 samples_per_epoch = args.numTrain,
                 nb_epoch = N_EPOCHS,
-                verbose = 2  )
+                verbose = 2,
+                validation_data = generatorValid,
+                nb_val_samples  = N_VALID )
     
     model.save_weights(args.modelName+".h5")
     open(args.modelName+".json", "w").write(model.to_json(indent=4, sort_keys=True))

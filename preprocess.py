@@ -55,6 +55,7 @@ def formatImage(logrow, name):
     plotImg = plt.imshow(cropped)
     plt.title("Steering = "+logrow['steering']+" CROPPED")
     plt.savefig(OUT_DIR+"/"+name+",cropped.png")
+    mpimg.imsave(OUT_DIR+"/"+name+",cropped,raw.png", cropped)
     small = cv2.resize(cropped, (200,66))
     plotImg = plt.imshow(small)
     plt.title("Steering = "+logrow['steering']+" RESIZED")
@@ -68,6 +69,7 @@ def formatImage(logrow, name):
         plotImg = plt.imshow(image2)
         plt.title("Steering = "+logrow['steering']+" brightness={0:.3f}".format(brightness))
         plt.savefig(OUT_DIR+"/"+name+",cropped,rs,b"+repr(i)+".png")
+        mpimg.imsave(OUT_DIR+"/"+name+",cropped,rs,b"+repr(i)+",raw.png", image2)
 
 def formatImage2(logrow, name):
     image = mpimg.imread(os.path.join(DATA_DIR, logrow['center']))
@@ -85,6 +87,12 @@ def plotImage(logrow, name):
     plotImg = plt.imshow(img)
     plt.title("Steering = "+logrow['steering'])
     plt.savefig(OUT_DIR+"/"+name+".png")
+    if name == 'left':
+        image2 = cv2.flip(img, 1)
+        plotImg = plt.imshow(image2)
+        newAngle = -1 * float(logrow['steering'])
+        plt.title("Steering = {} (Flipped image)".format(newAngle))
+        plt.savefig(OUT_DIR+"/"+name+",flip.png")
 
 def plotHistogram(logdata):
     angles = []

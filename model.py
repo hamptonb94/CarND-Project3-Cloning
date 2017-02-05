@@ -11,7 +11,7 @@ from keras.layers import Dense, Dropout, Flatten, Lambda, ELU, MaxPooling2D, Con
 from keras.regularizers import l2
 
 N_EPOCHS = 10
-N_VALID  = 800
+N_VALID  = 400
 LAYER_INIT='he_normal'
 
 # pre-process data:
@@ -130,6 +130,26 @@ def driveModel(modelName):
         return driveModelCommaai()
     raise "Unknown model:"+modelName
 
+def extractSteeringAndImage(datarow):
+    # extract steering
+    steering  = float(datarow['steering'])
+    
+    # make note (boolean) if it is center driving or not
+    isTurn = steering < -0.02 or steering > 0.02
+    
+    # we will choose between the 3 cameras and get the image
+    camera = random.choice(['left','center','right'])
+    # adjust steering for left/right camera angles
+    if camera == 'left' : steering += 0.25
+    if camera == 'right': steering -= 0.25
+    
+    # extract proper image and load/resize
+    image  = mpimg.imread(os.path.join(DATA_DIR, datarow[camera].strip()))
+    image  = image[60:140, 0:320]  # crop top and bottom
+    image = cv2.resize(image, (N_COLS, N_ROWS)) # resize to network input shape
+    
+    return steering, image, isTurn
+
 
 def generateTrainingBatch(logdata, batch_size):
     """For training we will use all camera angles, and do augmentation"""
@@ -137,30 +157,21 @@ def generateTrainingBatch(logdata, batch_size):
     batch_y = []
     while logdata:
         for row in logdata.rows:
-            # we will choose between the 3 cameras and get the image
-            camera = random.choice(['left','center','right'])
-            image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
-            image  = image[60:140, 0:320]  # crop top and bottom
-            image = cv2.resize(image, (N_COLS, N_ROWS)) # resize to network input shape
+            # extract items
+            steering, image, isTurn = extractSteeringAndImage(row)
             
             # randomize brightness
             imageHSV        = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
             brightness      = random.uniform(0.3, 1.0)
             imageHSV[:,:,2] = imageHSV[:,:,2]*brightness
             image           = cv2.cvtColor(imageHSV,cv2.COLOR_HSV2RGB)
-            
-            steering  = float(row['steering'])
-            nonCenter = steering < -0.02 or steering > 0.02
-            #adjust steering for left/right camera angles
-            if camera == 'left' : steering += 0.25
-            if camera == 'right': steering -= 0.25
                         
             batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
             batch_y.append(np.array([[steering]]))
             
             # add more non-center samples by flipping them since
             # there are sooo many driving center samples
-            if nonCenter and len(batch_x) < batch_size:
+            if isTurn and len(batch_x) < batch_size:
                 image = cv2.flip(image, 1)
                 steering *= -1
                 batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
@@ -174,16 +185,14 @@ def generateTrainingBatch(logdata, batch_size):
                 batch_y = []
 
 def generateValidationBatch(logdata, batch_size):
-    """For validation we just return a batch of center images"""
+    """For validation we don't randomize brightness or augment with more turning"""
     while logdata:
         batch_x = []
         batch_y = []
         for row in logdata.validRows:
-            camera = 'center'
-            image  = mpimg.imread(os.path.join(DATA_DIR, row[camera].strip()))
-            image  = image[60:140, 0:320]  # crop top and bottom
-            image  = cv2.resize(image, (N_COLS, N_ROWS)) # resize to network input shape
-            steering = float(row['steering'])
+            # extract items
+            steering, image, isTurn = extractSteeringAndImage(row)
+            
             batch_x.append(np.reshape(image, (1, N_ROWS, N_COLS, 3)))
             batch_y.append(np.array([[steering]]))
             # yield an entire batch at once
@@ -208,7 +217,7 @@ if __name__ == '__main__':
     model.summary()
     
     generatorTrain = generateTrainingBatch(  logdata, args.batchSize)
-    generatorValid = generateValidationBatch(logdata, N_VALID/4)
+    generatorValid = generateValidationBatch(logdata, N_VALID/2)
     
     history = model.fit_generator(
                 generator = generatorTrain,
